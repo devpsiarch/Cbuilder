@@ -51,7 +51,7 @@ struct string_vec {
 };
 int append(string_vec*self,char*str){
     if(self->current >= self->capacity){
-        size_t new_capacity = (self->capacity == 0) ? 4 : self->capacity*2;
+        size_t new_capacity = self->capacity*2;
         char**new_vec = realloc(self->vec,sizeof(char*)*new_capacity);
         if(new_vec == NULL){
             // this way we keep the original vec if appending failed.
@@ -71,7 +71,7 @@ int append(string_vec*self,char*str){
     return 0;
 }
 void show(string_vec*self){
-    for(size_t i = 0 ; i < self->capacity ; i++){
+    for(size_t i = 0 ; i < self->current ; i++){
         printf("%s ",self->vec[i]);
     }
     printf("\n");
@@ -87,8 +87,10 @@ void destroy(string_vec*self){
 void initstring_vec(string_vec*self){
     self->append = append;
     self->destroy = destroy;
+    self->show = show;
     self->current = 0;
-    self->capacity = 0;
+    self->capacity = 4;
+    self->vec = malloc(sizeof(char*)*4);
 }
 // build command looks like this ; 
 // gcc [CFLAGS] -o [OUTPUT_NAME] [SOURCE_FILES] [LIBS]
@@ -150,7 +152,11 @@ int main(int argc,char*argv[]){
     string_vec test;
     initstring_vec(&test);
     test.append(&test,"helo");
-    test.append(&test,"friend");
+
+    
+    test.show(&test);
+
+    test.destroy(&test);
     return 0;
     // char*cc = "clang";
     // char*flags = "-lm";
