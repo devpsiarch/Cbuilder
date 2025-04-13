@@ -1,8 +1,7 @@
 # OuroC
 Build your C project with nothing other then pure C !
 
-![logo](assets/logo.png)
-<img src="assets/logo.png" alt="logo" width="200"/>
+<img src="assets/logo.png" alt="logo" width="750"/>
 # How to use
 1- get the ```ouro.h``` into your home directory.\
 2- create a ```build.c``` file.\
