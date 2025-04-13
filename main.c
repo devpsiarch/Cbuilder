@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include "./ouroc.c"
+#include "./ouroc.h"
+#define OUROC_IMPLI
 int main(int argc,char*argv[]){
     if(argc >= 2){
         if(strcmp(argv[1],"-h") == 0){

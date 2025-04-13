@@ -2,13 +2,15 @@
 Build your C project with nothing other then pure C !
 
 ![logo](assets/logo.png)
+<img src="assets/logo.png" alt="logo" width="200"/>
 # How to use
-1- get the ```ouro.c``` into your home directory.
-2- create a ```build.c``` file or use ```ouro.c``` itself.
-3- Write you build instructions.
+1- get the ```ouro.h``` into your home directory.\
+2- create a ```build.c``` file.\
+3- Write you build instructions.\
 ```c
 #include <stdio.h>
-#include "./ouroc.c"
+#include "./ouroc.h"
+#define OUROC_IMPLI
 int main(int argc,char*argv[]){
     // Marco for prettier code soon ... sorry am lazy
     Builder tester = {
@@ -37,8 +39,8 @@ int main(int argc,char*argv[]){
  ```
 Or you can construct the build command in real time.
 ```c
-#include <stdio.h>
-#include "./ouroc.c"
+##include "./ouroc.h"
+#define OUROC_IMPLIinclude <stdio.h>
 int main(void){
 	Builder admin = {
         .bdir = NULL,
@@ -58,7 +60,7 @@ int main(void){
 	return 0;
 }
 ```
-3- compile your builder only once then run it to build your project.
+3- compile your builder only once then run it to build your project.\
 
 # Why ? 
 Only real developers know , if you build your C projects with anything other then C itself , then you are not a real programmer ... 

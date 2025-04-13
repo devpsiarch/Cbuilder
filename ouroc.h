@@ -1,9 +1,98 @@
+#ifndef OUROC_H
+#define OUROC_H
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 
+/*THE HEADER PART*/
+
+// recommeded to add
+#define CFLAGS "-Wall -Wextra"
+#define QUICK_MANUAL "Write the build.c builder file then execute it to compile your code\n"
+void printcmd(const unsigned int count,...);
+void cmd(const char*target,...);
+
+// ==============================================
+// ============== Definition: string_vec ==============
+// ==============================================
+
+typedef struct string_vec string_vec;
+struct string_vec {
+    char**vec;
+    size_t current;
+    size_t capacity;
+    int (*append)(string_vec*,char*);
+    int (*pop)(string_vec*);
+    void (*destroy)(string_vec*);
+};
+
+#define SHOWVEC(subject) for(size_t i = 0 ; i < subject.current ; i++)\
+                     {printf("%s ",subject.vec[i]);               \
+                     }printf("\n");                              
+
+// definition of the string_vec struct functions
+int append(string_vec*self,char*str);
+int pop(string_vec*self);
+void destroy(string_vec*self);
+void initstring_vec(string_vec*self);
+
+typedef struct Builder Builder;
+#define SHOWCC(subject) printf("using compiler: %s.\n",subject.cc);
+#define SHOWTARGET(subject) printf("building : %s.\n",subject.target);
+#define SHOWBDIR(subject) if(subject.bdir == NULL)                     \
+                            printf("building in current directory.\n");\
+                          else                                         \
+                            printf("building to: %s.\n",subject.bdir); \
+
+#define SHOWCOMMAND(subject) if(subject.buffer_used == 0)                    \
+                              printf("Build command not constructed yet.\n");               \
+                             else                                                           \
+                              printf("build command: %s.\n",subject.build_command_buffer);  \
+
+#define SPACE_BUFFER(ptr_subject) ptr_subject->appendcmd(ptr_subject," ")
+
+
+struct Builder {
+    char*      cc;
+    char*      target;
+    char*      bdir;
+    string_vec flags;
+    string_vec libs;
+    string_vec srcs;
+    char *build_command_buffer;
+    size_t buffer_used;
+    size_t buffer_max;
+    void (*appendcc)(Builder*,char*);
+    void (*appendtarget)(Builder*,char*);
+    void (*appendbdir)(Builder*,char*);
+    void (*appendflags)(Builder*,char*);
+    void (*appendlibs)(Builder*,char*);
+    void (*appendsrcs)(Builder*,char*);
+    int  (*appendcmd)(Builder*,char*);
+    void (*construct)(Builder*);
+    void (*execute)(Builder*);
+    void (*clean_up)(Builder*);
+};
+void appendcc(Builder*self,char*new_cc);
+void appendtarget(Builder*self,char*new_target);
+void appendbdir(Builder*self,char*new_bdir);
+void appendflags(Builder*self,char*new_flag);
+void appendlibs(Builder*self,char*new_lib);
+void appendsrcs(Builder*self,char*new_src);
+
+void clean_up(Builder*self);
+int appendcmd(Builder*self,char*str);
+void construct(Builder*self);
+void execute(Builder*self);
+void initbuilder(Builder*self);
+
+#endif 
+#ifndef OUROC_IMPLI
+#define OUROC_IMPLI
+
+/*The C implimentation part*/
 
 void printcmd(const unsigned int count,...){
     char*next;
@@ -36,9 +125,7 @@ void cmd(const char*target,...){
     printf("%s\n",buffer);
     system(buffer);
 }
-// recommeded to add
-#define CFLAGS "-Wall -Wextra"
-#define QUICK_MANUAL "Write the build.c builder file then execute it to compile your code\n"
+
 // additional implimentation for conviniance ... this is C
 
 // ==============================================
@@ -49,19 +136,6 @@ void cmd(const char*target,...){
 // build there build command 
 // or use the templates like appendsrc...
 
-#define SHOWVEC(subject) for(size_t i = 0 ; i < subject.current ; i++)\
-                     {printf("%s ",subject.vec[i]);               \
-                     }printf("\n");                              
-
-typedef struct string_vec string_vec;
-struct string_vec {
-    char**vec;
-    size_t current;
-    size_t capacity;
-    int (*append)(string_vec*,char*);
-    int (*pop)(string_vec*);
-    void (*destroy)(string_vec*);
-};
 int append(string_vec*self,char*str){
     if(self->current >= self->capacity){
         size_t new_capacity = self->capacity*2;
@@ -115,42 +189,7 @@ void initstring_vec(string_vec*self){
 // placeholder for now .... we need to cat all the string we have and execute the command
 // add in some crossplateform stuff 
 // also change the buffer and the char pointer to the heap , its neeter.
-typedef struct Builder Builder;
-#define SHOWCC(subject) printf("using compiler: %s.\n",subject.cc);
-#define SHOWTARGET(subject) printf("building : %s.\n",subject.target);
-#define SHOWBDIR(subject) if(subject.bdir == NULL)                     \
-                            printf("building in current directory.\n");\
-                          else                                         \
-                            printf("building to: %s.\n",subject.bdir); \
 
-#define SHOWCOMMAND(subject) if(subject.buffer_used == 0)                    \
-                              printf("Build command not constructed yet.\n");               \
-                             else                                                           \
-                              printf("build command: %s.\n",subject.build_command_buffer);  \
-
-#define SPACE_BUFFER(ptr_subject) ptr_subject->appendcmd(ptr_subject," ")
-
-struct Builder {
-    char*      cc;
-    char*      target;
-    char*      bdir;
-    string_vec flags;
-    string_vec libs;
-    string_vec srcs;
-    char *build_command_buffer;
-    size_t buffer_used;
-    size_t buffer_max;
-    void (*appendcc)(Builder*,char*);
-    void (*appendtarget)(Builder*,char*);
-    void (*appendbdir)(Builder*,char*);
-    void (*appendflags)(Builder*,char*);
-    void (*appendlibs)(Builder*,char*);
-    void (*appendsrcs)(Builder*,char*);
-    int  (*appendcmd)(Builder*,char*);
-    void (*construct)(Builder*);
-    void (*execute)(Builder*);
-    void (*clean_up)(Builder*);
-};
 void appendcc(Builder*self,char*new_cc){self->cc = new_cc;}
 void appendtarget(Builder*self,char*new_target){self->target = new_target;}
 void appendbdir(Builder*self,char*new_bdir){self->bdir = new_bdir;}
@@ -221,3 +260,4 @@ void initbuilder(Builder*self){
     self->execute = execute;
     self->build_command_buffer = (char*)malloc(self->buffer_max);
 }
+#endif
